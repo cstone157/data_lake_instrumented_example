@@ -6,10 +6,10 @@ RUN whoami
 USER root
 
 # Add the libpq-dev library
-RUN apt-get update && apt-get install --assume-yes libpq-dev plotly
+RUN apt-get update && apt-get install --assume-yes libpq-dev 
 
 # Switch back to jovyan
 USER jovyan
 
 # Install the psycopg2 library
-RUN pip install psycopg2
+RUN pip install psycopg2 plotly
