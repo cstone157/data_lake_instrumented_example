@@ -1,18 +1,10 @@
 {
-	"user": "User1",
-	"role": "Role1",
-	"process": ["Process01", "Process02", "Process03", "Process04", "Process05"],
-	
-  "Process01": {
-    "subTask": ["Review", "Design", "Update", "Message", "PostReview"], 
-    "stopOdds": 0.25
+	"toMap": {
+    "urls": ["www.google.com", "www.microsoft.com", "www.cox.com", "www.amazon.com"],
+    "interval": 300000
   },
-  
-  "minInterval": 60000, 
-	"interval": 300000,
-	"minFirstLoginInterval": 60000,
-	"firstLoginInterval": 30000, 
-  
-	"logoutOdds": 0.05,
-	"loginOdds": 0.01
+  "toPing": {
+    "urls": ["www.microsoft.com", "www.cox.com", "www.amazon.com"],
+    "interval": 300000
+  }
 }

@@ -302,6 +302,26 @@ services:
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
     networks:
       - business-intelligence-net
+  shoc_log_gen_02:
+    container_name: shoc_log_gen_02
+    build: ./generators/log/02/
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - business-intelligence-net
+  shoc_log_gen_03:
+    container_name: shoc_log_gen_03
+    build: ./generators/log/03/
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - business-intelligence-net
 
 
   # Network Mapping Generators
