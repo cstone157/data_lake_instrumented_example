@@ -21,8 +21,8 @@ services:
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     environment:
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SECURITY_ALLOW_EMBEDDING=true
     restart: unless-stopped
@@ -103,6 +103,31 @@ services:
     networks:
       - business-intelligence-net
 ## ------------------------------------------- END POSTGRES SECTION -------------------------------------------
+
+## --------------------------------------------- NIFI SECTION ---------------------------------------------
+  nifi:
+    cap_add:
+      - NET_ADMIN # low port bindings
+    image: apache/nifi
+    container_name: nifi
+    ports:
+      - "8080:8080/tcp" # HTTP interface
+      - "8443:8443/tcp" # HTTPS interface
+      - "514:514/tcp" # Syslog
+      - "514:514/udp" # Syslog
+      - "2055:2055/udp" # NetFlow
+    environment:
+      NIFI_WEB_HTTP_PORT: 8443
+    networks:
+      - business-intelligence-net
+      
+#    volumes:
+#      - ./nifi/drivers:/opt/nifi/nifi-current/drivers
+#      - ./nifi/certs:/opt/certs
+#      - ./nifi/conf:/opt/nifi/nifi-current/conf
+    restart: unless-stopped
+## ------------------------------------------- END NIFI SECTION -------------------------------------------
+
 
 ## ------------------------------------------ LOG-MONITORING SECTION ------------------------------------------
   # Loki container for log aggregation
@@ -269,7 +294,7 @@ services:
   # Random Log Generators
   shoc_log_gen_01:
     container_name: shoc_log_gen_01
-    build: ./log-generators/01/
+    build: ./generators/log/01/
     restart: always
     logging:
       driver: "json-file"
@@ -277,9 +302,12 @@ services:
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
     networks:
       - business-intelligence-net
-  shoc_log_gen_02:
-    container_name: shoc_log_gen_02
-    build: ./log-generators/02/
+
+
+  # Network Mapping Generators
+  shoc_net_map_01:
+    container_name: shoc_net_map_01
+    build: ./generators/network/01/
     restart: always
     logging:
       driver: "json-file"
@@ -287,34 +315,5 @@ services:
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
     networks:
       - business-intelligence-net
-  shoc_log_gen_03:
-    container_name: shoc_log_gen_03
-    build: ./log-generators/03/
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-    networks:
-      - business-intelligence-net
-  shoc_log_gen_04:
-    container_name: shoc_log_gen_04
-    build: ./log-generators/04/
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-    networks:
-      - business-intelligence-net
-  shoc_log_gen_05:
-    container_name: shoc_log_gen_05
-    build: ./log-generators/05/
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-    networks:
-      - business-intelligence-net
+
       
