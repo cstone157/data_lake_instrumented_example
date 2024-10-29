@@ -40,31 +40,32 @@ services:
 #       driver: loki
 #       options:
 #         loki-url: "http://loki:3100/loki/api/v1/push"
-# ## ------------------------------------------- END DASHBOARD SECTION ------------------------------------------
+## ------------------------------------------- END DASHBOARD SECTION ------------------------------------------
 
-# ## --------------------------------------------- JUPYTER SECTION --------------------------------------------
-#   # Custom datascience-notebook, for us to use
-#   datascience-notebook:
-#       #image:            jupyter/datascience-notebook
-#       # So that we can add the libraryies that I want/need use a custom 
-#       build: ./jupyter/.
-#       volumes:
-#         - ./jupyter:/home/jovyan/work
-#       ports:
-#         - 8889:8888
-#       environment:
-#         JUPYTER_ENABLE_LAB: "yes"
-#       command: "start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''"
-#       container_name: bi-jupyter-container
-#       networks:
-#         - business-intelligence-net
+## --------------------------------------------- JUPYTER SECTION --------------------------------------------
+   # Custom datascience-notebook, for us to use
+  datascience-notebook:
+    container_name: datalake.jupyter
+    # So that we can add the libraryies that I want/need use a custom 
+    build: ./jupyter/.
+    image: cstone/jupyter_notebook
+    volumes:
+      - ./jupyter/work:/home/jovyan/work
+    ports:
+      - 3020:8888
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"
+    command: "start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''"
+    networks:
+      - business-intelligence-net
 ## ------------------------------------------- END JUPYTER SECTION ------------------------------------------
 
 ## --------------------------------------------- POSTGRES SECTION ---------------------------------------------
   # Database Container (postgres)
   postgres:
-    container_name: pg_container
+    container_name: datalake.pg
     build: ./postgres
+    image: cstone/postgres_example
     restart: always
     environment:
       POSTGRES_USER: shoc
@@ -88,7 +89,7 @@ services:
 
   # Container of PGAdmin (web-based admin tool for postgres database)
   pgadmin:
-    container_name: pg_admin
+    container_name: datalake.pg_admin
     image: dpage/pgadmin4
     restart: always
     environment:
@@ -106,10 +107,8 @@ services:
 
 ## --------------------------------------------- NIFI SECTION ---------------------------------------------
   nifi:
-    cap_add:
-      - NET_ADMIN # low port bindings
-    image: apache/nifi
-    container_name: nifi
+    container_name: datalake.nifi
+    image: apache/nifi:1.28.0
     ports:
       - "3010:8080/tcp" # HTTP interface
       - "3011:8443/tcp" # HTTPS interface
@@ -122,6 +121,12 @@ services:
       NIFI_WEB_HTTP_PORT: 8443
     networks:
       - business-intelligence-net
+    cap_add:
+      - NET_ADMIN # low port bindings
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
       
 #    volumes:
 #      - ./nifi/drivers:/opt/nifi/nifi-current/drivers
@@ -132,45 +137,44 @@ services:
 
 
 ## ------------------------------------------ LOG-MONITORING SECTION ------------------------------------------
-#   # Loki container for log aggregation
-#   loki:
-#     container_name: loki
-#     image: grafana/loki:2.3.0
-#     restart: unless-stopped
-#     ports:
-#       - "3100:3100"
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     volumes:
-#       - ./loki/config/loki-config.yaml:/etc/loki/loki-config.yaml
-#       - ./loki/data:/data/loki
-#     command: -config.file=/etc/loki/loki-config.yaml
-#     networks:
-#       - business-intelligence-net
+  # Loki container for log aggregation
+  loki:
+    container_name: datalake.loki
+    image: grafana/loki:2.3.0
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    volumes:
+      - ./loki/config/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ./loki/data:/data/loki
+    command: -config.file=/etc/loki/loki-config.yaml
+    networks:
+      - business-intelligence-net
 
-#   # Promtail will take any log file and export it to loki for you,
-#   #   this one assumes that you used a standard install for the 
-#   #   docker containers, this works for linux.  Not sure about MAC's
-#   promtail:
-#     container_name: promtail
-#     image: grafana/promtail:2.3.0
-#     restart: unless-stopped
-#     volumes:
-#       - /var/lib/docker/containers:/var/lib/docker/containers
-#       - ./promtail/config/docker-config.yml:/etc/promtail/docker-config.yml
-#     command: -config.file=/etc/promtail/docker-config.yml
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#       - business-intelligence-net
+  # Promtail will take any log file and export it to loki for you,
+  #   this one assumes that you used a standard install for the 
+  #   docker containers, this works for linux.  Not sure about MAC's
+  promtail:
+    container_name: datalake.promtail
+    image: grafana/promtail:2.3.0
+    restart: unless-stopped
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - ./promtail/config/docker-config.yml:/etc/promtail/docker-config.yml
+    command: -config.file=/etc/promtail/docker-config.yml
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - business-intelligence-net
+## ---------------------------------------- END LOG-MONITORING SECTION ----------------------------------------
 
-# ## ---------------------------------------- END LOG-MONITORING SECTION ----------------------------------------
-
-# ## ----------------------------------------- SYSTEM-MONITORING SECTION ----------------------------------------
+## ----------------------------------------- SYSTEM-MONITORING SECTION ----------------------------------------
 #   prometheus:
 #     image: prom/prometheus:v2.37.0
 #     container_name: prometheus
@@ -291,7 +295,7 @@ services:
 #     networks:
 #       - business-intelligence-net
 
-# ## --------------------------------------- END SYSTEM-MONITORING SECTION --------------------------------------
+## --------------------------------------- END SYSTEM-MONITORING SECTION --------------------------------------
 
 #   # Random Log Generators
 #   shoc_log_gen_01:
