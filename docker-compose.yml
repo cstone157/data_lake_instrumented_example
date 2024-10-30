@@ -1,45 +1,47 @@
-version: '3.3'
-
 networks:
-  business-intelligence-net:
+  datelake-net:
     driver: bridge
 
 volumes:
-    prometheus_data: {}
-    grafana_data: {}
+    datalake.prometheus.data: {}
+    datalake.grafana.data: {}
+#    prometheus_data: {}
+#    grafana_data: {}
 
 services:
 
 ## --------------------------------------------- DASHBOARD SECTION --------------------------------------------
-#   # Container Grafana
-#   grafana:
-#     image: grafana/grafana
-#     container_name: grafana
-#     user: "0"
-#     volumes:
-#       - grafana_data:/var/lib/grafana
-#       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-#       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-#     environment:
-#       - GF_AUTH_DISABLE_LOGIN_FORM=false
-#       - GF_AUTH_ANONYMOUS_ENABLED=false
-#       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-#       - GF_SECURITY_ALLOW_EMBEDDING=true
-#     restart: unless-stopped
-#     links:
-#       - postgres
-#     expose:
-#       - 3000
-# #    logging:
-# #      driver: "json-file"
-# #      options:
-# #        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#       - business-intelligence-net
-#     logging:
-#       driver: loki
-#       options:
-#         loki-url: "http://loki:3100/loki/api/v1/push"
+  # Container Grafana
+  grafana:
+    container_name: datalake.grafana
+    image: grafana/grafana:11.3.0-ubuntu
+    user: "0"
+    volumes:
+      - datalake.prometheus.data:/var/lib/grafana
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    restart: unless-stopped
+    links:
+      - postgres
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - datelake-net
+#    logging:
+#      driver: loki
+#      options:
+#        loki-url: "http://loki:3100/loki/api/v1/push"
 ## ------------------------------------------- END DASHBOARD SECTION ------------------------------------------
 
 ## --------------------------------------------- JUPYTER SECTION --------------------------------------------
@@ -49,6 +51,10 @@ services:
     # So that we can add the libraryies that I want/need use a custom 
     build: ./jupyter/.
     image: cstone/jupyter_notebook
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
     volumes:
       - ./jupyter/work:/home/jovyan/work
     ports:
@@ -57,7 +63,7 @@ services:
       JUPYTER_ENABLE_LAB: "yes"
     command: "start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''"
     networks:
-      - business-intelligence-net
+      - datelake-net
 ## ------------------------------------------- END JUPYTER SECTION ------------------------------------------
 
 ## --------------------------------------------- POSTGRES SECTION ---------------------------------------------
@@ -85,7 +91,7 @@ services:
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
     networks:
-      - business-intelligence-net
+      - datelake-net
 
   # Container of PGAdmin (web-based admin tool for postgres database)
   pgadmin:
@@ -96,13 +102,13 @@ services:
       PGADMIN_DEFAULT_EMAIL: shoc@shoc.us
       PGADMIN_DEFAULT_PASSWORD: shoc
     ports:
-      - "3000:80"
+      - "3030:80"
     logging:
       driver: "json-file"
       options:
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
     networks:
-      - business-intelligence-net
+      - datelake-net
 ## ------------------------------------------- END POSTGRES SECTION -------------------------------------------
 
 ## --------------------------------------------- NIFI SECTION ---------------------------------------------
@@ -120,7 +126,7 @@ services:
     environment:
       NIFI_WEB_HTTP_PORT: 8443
     networks:
-      - business-intelligence-net
+      - datelake-net
     cap_add:
       - NET_ADMIN # low port bindings
     logging:
@@ -153,7 +159,7 @@ services:
       - ./loki/data:/data/loki
     command: -config.file=/etc/loki/loki-config.yaml
     networks:
-      - business-intelligence-net
+      - datelake-net
 
   # Promtail will take any log file and export it to loki for you,
   #   this one assumes that you used a standard install for the 
@@ -171,129 +177,109 @@ services:
       options:
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
     networks:
-      - business-intelligence-net
+      - datelake-net
 ## ---------------------------------------- END LOG-MONITORING SECTION ----------------------------------------
 
 ## ----------------------------------------- SYSTEM-MONITORING SECTION ----------------------------------------
-#   prometheus:
-#     image: prom/prometheus:v2.37.0
-#     container_name: prometheus
-#     volumes:
-#       - ./prometheus:/etc/prometheus
-#       - prometheus_data:/prometheus
-#     command:
-#       - '--config.file=/etc/prometheus/prometheus.yml'
-#       - '--storage.tsdb.path=/prometheus'
-#       - '--web.console.libraries=/etc/prometheus/console_libraries'
-#       - '--web.console.templates=/etc/prometheus/consoles'
-#       - '--storage.tsdb.retention.time=200h'
-#       - '--web.enable-lifecycle'
-#     restart: unless-stopped
-#     expose:
-#       - 9090
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#       - business-intelligence-net
+  prometheus:
+    container_name: datalake.prometheus
+    image: prom/prometheus:v2.37.0
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - datalake.prometheus.data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    expose:
+      - 9090
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - datelake-net
 
-#   alertmanager:
-#     image: prom/alertmanager:v0.24.0
-#     container_name: alertmanager
-#     volumes:
-#       - ./alertmanager:/etc/alertmanager
-#     command:
-#       - '--config.file=/etc/alertmanager/config.yml'
-#       - '--storage.path=/alertmanager'
-#     restart: unless-stopped
-#     expose:
-#       - 9093
-#     networks:
-#       - business-intelligence-net
+  alertmanager:
+    container_name: datalake.alertmanager
+    image: prom/alertmanager:v0.24.0
+    volumes:
+      - ./alertmanager:/etc/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    expose:
+      - 9093
+    networks:
+      - datelake-net
 
-#   nodeexporter:
-#     image: prom/node-exporter:v1.3.1
-#     container_name: nodeexporter
-#     volumes:
-#       - /proc:/host/proc:ro
-#       - /sys:/host/sys:ro
-#       - /:/rootfs:ro
-#     command:
-#       - '--path.procfs=/host/proc'
-#       - '--path.rootfs=/rootfs'
-#       - '--path.sysfs=/host/sys'
-#       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-#       - '--collector.systemd'
-#     restart: unless-stopped
-#     expose:
-#       - 9100
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#       - business-intelligence-net
+  nodeexporter:
+    container_name: datalake.nodeexporter
+    image: prom/node-exporter:v1.3.1
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.systemd'
+    restart: unless-stopped
+    expose:
+      - 9100
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - datelake-net
 
-#   cadvisor:
-#     image: gcr.io/cadvisor/cadvisor:v0.44.0
-#     container_name: cadvisor
-#     privileged: true
-#     devices:
-#       - /dev/kmsg:/dev/kmsg
-#     volumes:
-#       - /:/rootfs:ro
-#       - /var/run:/var/run:ro
-#       - /sys:/sys:ro
-#       - /var/lib/docker:/var/lib/docker:ro
-#     restart: unless-stopped
-#     expose:
-#       - 8080
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#       - business-intelligence-net
+  cadvisor:
+    container_name: datalake.cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.44.0
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    restart: unless-stopped
+    expose:
+      - 8080
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - datelake-net
 
-#   pushgateway:
-#     image: prom/pushgateway:v1.4.3
-#     container_name: pushgateway
-#     restart: unless-stopped
-#     expose:
-#       - 9091
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#       - business-intelligence-net
-#     labels:
-#       org.label-schema.group: "business-intelligence"
-
-#   # CADDY is used to have a single sign-on for all of our applications.  Excluding pgAdmin,
-#   #   because pgAdmin refuses to play nice.
-#   caddy:
-#     image: caddy:2.3.0
-#     container_name: caddy
-#     ports:
-#       - "3000:3000"  # Grafana's Port
-#       - "9090:9090"  # Prometheus's Port
-#       - "9093:9093"  # Alertmanager's Port
-#       - "9091:9091"  # Pushgateway's Port
-#     volumes:
-#       - ./caddy:/etc/caddy
-#     environment:
-#       - ADMIN_USER=${ADMIN_USER:-admin}
-#       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
-#       - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-JDJhJDE0JE91S1FrN0Z0VEsyWmhrQVpON1VzdHVLSDkyWHdsN0xNbEZYdnNIZm1pb2d1blg4Y09mL0ZP}
-#     restart: unless-stopped
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#       - business-intelligence-net
+  pushgateway:
+    container_name: datalake.pushgateway
+    image: prom/pushgateway:v1.4.3
+    restart: unless-stopped
+    expose:
+      - 9091
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - datelake-net
+    labels:
+      org.label-schema.group: "business-intelligence"
 
 ## --------------------------------------- END SYSTEM-MONITORING SECTION --------------------------------------
 
@@ -307,7 +293,7 @@ services:
 #       options:
 #         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 #     networks:
-#       - business-intelligence-net
+#      - datelake-net
 #   shoc_log_gen_02:
 #     container_name: shoc_log_gen_02
 #     build: ./generators/log/02/
@@ -317,7 +303,7 @@ services:
 #       options:
 #         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 #     networks:
-#       - business-intelligence-net
+#      - datelake-net
 #   shoc_log_gen_03:
 #     container_name: shoc_log_gen_03
 #     build: ./generators/log/03/
@@ -327,7 +313,7 @@ services:
 #       options:
 #         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 #     networks:
-#       - business-intelligence-net
+#      - datelake-net
 
 
 #   # Network Mapping Generators
@@ -340,6 +326,6 @@ services:
 #       options:
 #         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 #     networks:
-#       - business-intelligence-net
+#      - datelake-net
 
       
