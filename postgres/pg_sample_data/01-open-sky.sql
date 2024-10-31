@@ -29,7 +29,7 @@ INSERT INTO open_sky(time, icao24, latitude, longitude, velocity, true_track,
 		vertical_rate, callsign, on_ground, alert, spi, squawk, 
 		baro_altitude, geo_altitude, time_position, last_contact)
 VALUES
-(1656288000, '34718e', 40.87294006347656, 1.9229736328125, 187.6310635017997, 245.543044135279, 8.128, 'IBE2601', false, false, False, '0417', 5509.26, 5814.06, 1656287998.654, 1656288000.0),
+(1656288000, '34718e', 40.87294006347656, 1.9229736328125, 187.6310635017997, 245.543044135279, 8.128, 'IBE2601', false, false, false, '0417', 5509.26, 5814.06, 1656287998.654, 1656288000.0),
 (1656288000,'ac6364',33.139048430879235,-85.5262662926499,237.23957517209598,337.16031912814094,0.0,'DAL749'  ,false,false,false,5761,10363.2,11003.28,1656287998.568,1656288000.0),
 (1656288000,'406471',51.9085693359375,1.8383026123046875,169.17074616162108,286.0650610976732,-0.65024,'TOM891'  ,false,false,false,3541,5478.780000000001,5570.22,1656287998.754,1656288000.0),
 (1656288000,'a04417',33.75718688964844,-83.45837028659122,132.31215652659156,228.625464683238,-0.32512,'N116SK'  ,false,false,false,1716,7955.280000000001,8458.2,1656287998.776,1656288000.0),
@@ -216,36 +216,78 @@ VALUES
 
 
 CREATE TABLE public.open_sky_aircraft (
-	icao24				text,
-	"timestamp"			text,
-	acars				integer,
-	adsb				integer,
-	built				text,
-	categoryDescription	text,
-	country				text,
-	engines				text,
-	firstFlightDate		text,
-	firstSeen			text,
-	icaoAircraftClass	text,
-	lineNumber			text,
-	manufacturerIcao	text,
-	manufacturerName	text,
-	model				text,
-	modes				text,
-	nextReg				text,
-	operator			text,
-	operatorCallsign	text,
-	operatorIata		text,
-	operatorIcao		text,
-	owner				text,
-	prevReg				text,
-	regUntil			text,
-	registered			text,
-	registration		text,
-	selCal				text,
-	serialNumber		text,
-	status				text,
-	typecode			text,
-	vdl					text
+	"icao24"			    text,
+--	"timestamp"			    text,
+	"registration"		    text,
+	"manufacturerIcao"	    text,
+	"manufacturerName"	    text,
+	"model"				    text,
+	"typecode"			    text,
+	"serialNumber"		    text,
+	"lineNumber"			text,
+--	"icaoAircraftClass"	    text,
+	"icaoAircraftType"	    text,
+	"operator"			    text,
+	"operatorCallsign"	    text,
+	"operatorIcao"		    text,
+	"operatorIata"		    text,
+	"owner"				    text,
+    "testReg"               text,
+	"registered"		    text,
+	"regUntil"			    text,
+	"status"			    text,
+	"built"					text,
+	"firstFlightDate"	    text,
+    "seatconfiguration"     text,
+    "engines"               text,
+	"modes"				    boolean,
+	"adsb"				    boolean,
+	"acars"				    boolean,
+    "notes"                 text,
+    "categoryDescription"   text
+--	"country"			    text,
+--	"engines"			    text,
+--	"firstSeen"			    text,
+--	"nextReg"				text,
+--	"prevReg"				text,
+--	"selCal"				text,
+--	"vdl"				    text
 );
+
+-- Ingest the data using the import tool
+update	open_sky_aircraft set "manufacturerIcao" = null       where "manufacturerIcao" = '';
+update	open_sky_aircraft set "manufacturerName" = null       where "manufacturerName" = '';
+update	open_sky_aircraft set "model" = null                  where "model" = '';
+update	open_sky_aircraft set "typecode" = null               where "typecode" = '';
+update	open_sky_aircraft set "serialNumber" = null           where "serialNumber" = '';
+update	open_sky_aircraft set "lineNumber" = null             where "lineNumber" = '';
+update	open_sky_aircraft set "icaoAircraftType" = null       where "icaoAircraftType" = '';
+update	open_sky_aircraft set "operator" = null               where "operator" = '';
+update	open_sky_aircraft set "operatorCallsign" = null       where "operatorCallsign" = '';
+update	open_sky_aircraft set "operatorIcao" = null           where "operatorIcao" = '';
+update	open_sky_aircraft set "operatorIata" = null           where "operatorIata" = '';
+update	open_sky_aircraft set "owner" = null                  where "owner" = '';
+update	open_sky_aircraft set "testReg" = null                where "testReg" = '';
+update	open_sky_aircraft set "registered" = null             where "registered" = '';
+update	open_sky_aircraft set "regUntil" = null               where "regUntil" = '';
+update	open_sky_aircraft set "status" = null                 where "status" = '';
+update	open_sky_aircraft set "built" = null                  where "built" = '';
+update	open_sky_aircraft set "firstFlightDate" = null        where "firstFlightDate" = '';
+update	open_sky_aircraft set "seatconfiguration" = null      where "seatconfiguration" = '';
+update	open_sky_aircraft set "engines" = null                where "engines" = '';
+update	open_sky_aircraft set "notes" = null                  where "notes" = '';
+update	open_sky_aircraft set "categoryDescription" = null    where "categoryDescription" = '';
+
+
+
+
+create table look_up (
+	uid			bigint,
+	"table"		varchar(30),
+	"column"	varchar(30),
+	"value"		varchar(30)
+);
+
+
+
 
