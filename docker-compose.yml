@@ -281,49 +281,46 @@ services:
 
 ## --------------------------------------- END SYSTEM-MONITORING SECTION --------------------------------------
 
-#   # Random Log Generators
-#   shoc_log_gen_01:
-#     container_name: shoc_log_gen_01
-#     build: ./generators/log/01/
-#     restart: always
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#      - datelake-net
-#   shoc_log_gen_02:
-#     container_name: shoc_log_gen_02
-#     build: ./generators/log/02/
-#     restart: always
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#      - datelake-net
-#   shoc_log_gen_03:
-#     container_name: shoc_log_gen_03
-#     build: ./generators/log/03/
-#     restart: always
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#      - datelake-net
+  # Random Log Generators
+#  shoc_log_gen_01:
+#    container_name: shoc_log_gen_01
+#    build: ./generators/log/01/
+#    restart: always
+#    logging:
+#      driver: "json-file"
+#      options:
+#        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+#    networks:
+#     - datelake-net
+  shoc_log_gen_02:
+    container_name: shoc_log_gen_02
+    build: ./generators/log/02/
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+     - datelake-net
+  shoc_log_gen_03:
+    container_name: shoc_log_gen_03
+    build: ./generators/log/03/
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+     - datelake-net
 
-
-#   # Network Mapping Generators
-#   shoc_net_map_01:
-#     container_name: shoc_net_map_01
-#     build: ./generators/network/01/
-#     restart: always
-#     logging:
-#       driver: "json-file"
-#       options:
-#         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-#     networks:
-#      - datelake-net
-
-      
+  # Network Mapping Generators
+  shoc_net_map_01:
+    container_name: shoc_net_map_01
+    build: ./generators/network/01/
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+     - datelake-net      

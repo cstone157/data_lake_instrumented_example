@@ -7,5 +7,5 @@ RUN mkdir preloaded_data
 COPY ./pg_sample_data/*.sql \
 		/preloaded_data/
 
-COPY ./pg_sample_data/random/*.sql \
+COPY ./pg_sample_data/random/*.* \
 		/preloaded_data/
