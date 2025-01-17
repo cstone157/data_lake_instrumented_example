@@ -8,6 +8,7 @@
     "start": "node ."
   },
   "dependencies": {
+    "dgram": "^1.0.1",
     "log4js": "^6.7.0"
   },
   "author": "C Stone",
