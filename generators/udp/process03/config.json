@@ -1,0 +1,18 @@
+{
+	"user": "User3",
+	"role": "Role3",
+	"process": ["Process21", "Process22", "Process23", "Process24", "Process25", "Process26", "Process27"],
+	
+  "Process01": {
+    "subTask": ["Requirements", "Specifications", "Design", "Implement", "Commit", "Review", "Deploy"], 
+    "stopOdds": 0.10
+  },
+  
+    "minInterval": 60,
+    "interval": 500,
+    "minFirstLoginInterval": 15,
+    "firstLoginInterval": 3, 
+
+    "logoutOdds": 0.1,
+    "loginOdds": 0.1
+}
