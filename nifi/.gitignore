@@ -1,5 +1,5 @@
-.nifi_state/
-.nifi_db/
-.nifi_flowfile/
-.nifi_content/
-.nifi_provenance/
+nifi_state/*
+nifi_db/
+nifi_flowfile/
+nifi_content/
+nifi_provenance/
