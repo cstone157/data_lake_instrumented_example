@@ -32,7 +32,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: shoc
-      POSTGRES_PASSWORD: JustKeepSwimming
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: test_db
     ports:
       - "5432:5432"
@@ -52,7 +52,7 @@ services:
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: shoc@shoc.us
-      PGADMIN_DEFAULT_PASSWORD: JustKeepSwimming
+      PGADMIN_DEFAULT_PASSWORD: password
     ports:
       - "3001:80"
     logging:
@@ -141,4 +141,30 @@ services:
       - ./generators/udp/process03:/app/config
     networks:
       - business-intelligence-net
+#  dis_producer01:
+#    build: dis/.
+#    container_name: dis_producer01
+#    environment:
+#      SERVER: "nifi"
+#      SERVER_PORT: 3001
+#      SERVER_DELAY: 30
+#      SERVER_OPTION: 0
+#    networks:
+#      - data-lake
+#    restart: unless-stopped
+#    links:
+#      - nifi
+#  xml_producer01:
+#    build: xml/.
+#    container_name: xml_producer01
+#    environment:
+#      SERVER: "nifi"
+#      SERVER_PORT: 3003
+#      SERVER_DELAY: 10
+#      SERVER_OPTION: 1
+#    networks:
+#      - data-lake
+#    restart: unless-stopped
+#    links:
+#      - nifi
 ## ---------------------------------------- END GENERATOR SECTION ----------------------------------------

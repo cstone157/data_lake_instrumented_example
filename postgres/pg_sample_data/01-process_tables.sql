@@ -1,6 +1,3 @@
--- Add the python extension to the database
-CREATE EXTENSION IF NOT EXISTS plpython3u;
-
 -- Install the dblink exstension (dblink is a module that 
 --		supports connections to other PostgreSQL databases 
 --		from within a database session.)
