@@ -81,15 +81,15 @@ services:
       NIFI_WEB_HTTP_PORT: 8443
     networks:
       - business-intelligence-net
-    volumes:
-      - ./nifi/nifi_state:/opt/nifi/nifi-current/state
-      - ./nifi/nifi_db:/opt/nifi/nifi-current/database_repository
-      - ./nifi/nifi_flowfile:/opt/nifi/nifi-current/flowfile_repository
-      - ./nifi/nifi_content:/opt/nifi/nifi-current/content_repository
-      - ./nifi/nifi_provenance:/opt/nifi/nifi-current/provenance_repository  
+#    volumes:
+#      - ./nifi/nifi_state:/opt/nifi/nifi-current/state
+#      - ./nifi/nifi_db:/opt/nifi/nifi-current/database_repository
+#      - ./nifi/nifi_flowfile:/opt/nifi/nifi-current/flowfile_repository
+#      - ./nifi/nifi_content:/opt/nifi/nifi-current/content_repository
+#      - ./nifi/nifi_provenance:/opt/nifi/nifi-current/provenance_repository  
 #      - ./nifi/drivers:/opt/nifi/nifi-current/drivers
 #      - ./nifi/certs:/opt/certs
-      - ./nifi/conf:/opt/nifi/nifi-current/conf
+#      - ./nifi/conf:/opt/nifi/nifi-current/conf
     restart: unless-stopped
 ## ------------------------------------------- END NIFI SECTION -------------------------------------------
 
@@ -141,19 +141,19 @@ services:
       - ./generators/udp/process03:/app/config
     networks:
       - business-intelligence-net
-#  dis_producer01:
-#    build: dis/.
-#    container_name: dis_producer01
-#    environment:
-#      SERVER: "nifi"
-#      SERVER_PORT: 3001
-#      SERVER_DELAY: 30
-#      SERVER_OPTION: 0
-#    networks:
-#      - data-lake
-#    restart: unless-stopped
-#    links:
-#      - nifi
+  dis_producer01:
+    build: ./generators/udp/dis/.
+    container_name: dis_producer01
+    environment:
+      SERVER: "nifi"
+      SERVER_PORT: 3001
+      SERVER_DELAY: 30
+      SERVER_OPTION: 0
+    networks:
+      - business-intelligence-net
+    restart: unless-stopped
+    links:
+      - nifi
 #  xml_producer01:
 #    build: xml/.
 #    container_name: xml_producer01
