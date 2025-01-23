@@ -9,9 +9,9 @@ import os
 
 from io import BytesIO
 
-from opendis.DataOutputStream import DataOutputStream
-from opendis.dis7 import EntityStatePdu
-from opendis.RangeCoordinates import *
+from open_dis_python.opendis.DataOutputStream import DataOutputStream
+from open_dis_python.opendis.dis7 import EntityStatePdu
+from open_dis_python.opendis.RangeCoordinates import *
 
 SERVER = os.getenv("SERVER", "127.0.0.1")
 SERVER_PORT = int(os.getenv("SERVER_PORT", 3001))

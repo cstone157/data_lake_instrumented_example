@@ -144,6 +144,7 @@ services:
   dis_producer01:
     build: ./generators/udp/dis/.
     container_name: dis_producer01
+    image: cstone157/shoc_dis_gen_01
     environment:
       SERVER: "nifi"
       SERVER_PORT: 3001

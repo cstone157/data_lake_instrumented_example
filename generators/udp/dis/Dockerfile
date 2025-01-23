@@ -10,9 +10,9 @@ WORKDIR "/app"
 COPY dis_sender.py dis_sender.py
 
 ## Clone the open-dis libraries that I need 
-RUN mkdir open-dis-python
-WORKDIR "/app/open-dis-python"
-COPY open-dis-python .
+RUN mkdir open_dis_python
+WORKDIR "/app/open_dis_python"
+COPY open_dis_python .
 RUN pip install --upgrade pip
 RUN pip install numpy
 RUN pip install .
