@@ -1,8 +1,13 @@
-FROM python:alpine3.12
+FROM python:alpine3.19
 
 EXPOSE 3001
 EXPOSE 3002
 EXPOSE 3003
+
+RUN apk update
+RUN apk upgrade
+RUN apk add gcc
+
 
 ## Copy over our application file
 RUN mkdir app
