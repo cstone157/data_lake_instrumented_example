@@ -1,5 +1,5 @@
 #!python
-
+"""
 __author__ = "DMcG"
 __date__ = "$Jun 23, 2015 10:27:29 AM$"
 
@@ -118,3 +118,6 @@ def send():
         time.sleep(SERVER_DELAY)
 
 send()
+"""
+while(True):
+    pass
