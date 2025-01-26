@@ -1,12 +1,12 @@
-FROM python:alpine3.19
+FROM python:alpine3.21
 
 EXPOSE 3001
 EXPOSE 3002
 EXPOSE 3003
 
-RUN apk update
-RUN apk upgrade
-RUN apk add gcc
+#RUN apk update
+#RUN apk upgrade
+#RUN apk add gcc
 
 
 ## Copy over our application file
@@ -18,9 +18,9 @@ COPY dis_sender.py dis_sender.py
 RUN mkdir open_dis_python
 WORKDIR "/app/open_dis_python"
 COPY open_dis_python .
-RUN pip install --upgrade pip
-RUN pip install numpy
-RUN pip install .
+#RUN pip install --upgrade pip
+#RUN pip install numpy
+#RUN pip install .
 
 WORKDIR "/app"
 CMD ["python3", "/app/dis_sender.py"]
