@@ -31,25 +31,58 @@ def open_aircraft_from_file():
     return aircrafts
 
 aircrafts = open_aircraft_from_file()
-keys = []
-
-for aircraft in aircrafts:
-    keys += [key for key in aircraft.keys()]
-    keys = list(set(keys))
-
-print(f"Keys that have been found: \n{keys}")
-
+counts = {}
 values = {}
-for key in keys:
-    values[key] = []
+i = 0
 
 for aircraft in aircrafts:
-    for key in keys:
-        if key in aircraft:
+    for key in aircraft.keys():
+        ## Check if we have a new key
+        if key not in counts.keys():
+            counts[key] = i + 1
+            #if i > 0:
+            #    values[key] = [None] * i
+            #else:
+            #    values[key] = []
+            values[key] = [None] * i
             values[key].append(aircraft[key])
+
         else:
+            counts[key] += 1
+            values[key].append(aircraft[key])
+
+    #keys += [key for key in aircraft.keys()]
+    #keys = list(set(keys))
+
+    i += 1
+    ## Check to ensure that all of the keys have had a value added to them
+    for key in counts.keys():
+        if counts[key] < i:
+            counts[key] += 1
             values[key].append(None)
+
+#print(f"Keys that have been found: \n{keys}")
+print(f"Number of values that have been found: \n{counts}\n")
+
+#values = {}
+#for key in keys:
+#    values[key] = []
+#
+#for aircraft in aircrafts:
+#    for key in keys:
+#        if key in aircraft:
+#            values[key].append(aircraft[key])
+#        else:
+#            values[key].append(None)
 
 ##df = pd.DataFrame({ 'msg_type': msg_type, 'flight': flight, 'alt_geom': alt_geom, 'emergency': emergency, })
 df = pd.DataFrame(values)
 print(df.head())
+
+## Find the flights that don't have a flight, we are going to fake a seperate process for them
+na_flight_df = df[df['flight'].isna()]
+print(na_flight_df)
+
+## Find the flights that start with UA, since we are going to use them to pretend we have a process running in the background
+ua_flights_df = df[df['flight'].notna()]
+print(ua_flights_df[ua_flights_df['flight'].str.startswith('UA')])
