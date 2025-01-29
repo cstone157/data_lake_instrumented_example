@@ -31,29 +31,25 @@ def open_aircraft_from_file():
     return aircrafts
 
 aircrafts = open_aircraft_from_file()
-msg_type, flight, alt_geom, emergency = [], [], [], []
+keys = []
 
 for aircraft in aircrafts:
-    if 'type' in aircraft:
-        msg_type.append(aircraft['type'])
-    else:
-        msg_type.append("")
+    keys += [key for key in aircraft.keys()]
+    keys = list(set(keys))
 
-    if 'flight' in aircraft:
-        flight.append(aircraft['flight'])
-    else:
-        flight.append("")
+print(f"Keys that have been found: \n{keys}")
 
-    if 'alt_geom' in aircraft:
-        alt_geom.append(aircraft['alt_geom'])
-    else:
-        alt_geom.append("")
+values = {}
+for key in keys:
+    values[key] = []
 
-    if 'emergency' in aircraft:
-        emergency.append(aircraft['emergency'])
-    else:
-        emergency.append("")
+for aircraft in aircrafts:
+    for key in keys:
+        if key in aircraft:
+            values[key].append(aircraft[key])
+        else:
+            values[key].append(None)
 
-
-df = pd.DataFrame({ 'msg_type': msg_type, 'flight': flight, 'alt_geom': alt_geom, 'emergency': emergency, })
+##df = pd.DataFrame({ 'msg_type': msg_type, 'flight': flight, 'alt_geom': alt_geom, 'emergency': emergency, })
+df = pd.DataFrame(values)
 print(df.head())
