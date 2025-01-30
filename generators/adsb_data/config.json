@@ -1,0 +1,9 @@
+{
+	"users": ["User1"],
+	"roles": ["Role1"],
+	"tasks": [
+        {
+            "name": "Identify"
+        }
+    ]
+}
