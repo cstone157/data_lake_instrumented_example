@@ -1,9 +1,9 @@
 {
-	"users": ["User1"],
-	"roles": ["Role1"],
-	"tasks": [
-        {
-            "name": "Identify"
+    "tasks": {
+        "Step1": {
+            "users": [],
+            "roles": ["Automated"],
+            "status": [{"type": "Ingested", "probability": 1.0}]
         }
-    ]
+    }
 }
