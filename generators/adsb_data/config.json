@@ -1,9 +1,16 @@
 {
     "tasks": {
-        "Step1": {
+        "Ingested": {
             "users": [],
             "roles": ["Automated"],
-            "status": [{"type": "Ingested", "probability": 1.0}]
+            "next_status": [{"type": "Pending", "probability": 0.50, "min": 3000, "max": 30000}]
+        },
+        "Pending": {
+            "users": [],
+            "roles": ["Automated"],
+            "next_status": [{"type": "Pending", "probability": 0.50}]
         }
-    }
+    },
+    
+    "initial_task": "Ingested"
 }

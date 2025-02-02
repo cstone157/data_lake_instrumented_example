@@ -4,6 +4,13 @@ import json
 import numpy as np
 import pandas as pd
 
+def get_config():
+    '''
+    Return the config of our application
+    '''
+    with open('config.json', 'r') as file:
+        return json.load(file)
+
 def read_adsb_api():
     '''
     Call the adsb api and return only the aircraft
@@ -57,16 +64,19 @@ def convert_adsb_json_to_dataframe(aircrafts):
     return df
 
 
+## Get my aircrafts from a file (temporary)
 aircrafts = open_aircraft_from_file()
 df = convert_adsb_json_to_dataframe(aircrafts)
-print(df.head())
+
+## Get our configuration
+config = get_config()
+## Update our dataframe and include what the current status of our datapoints are
+df["last_update"] = pd.to_datetime('now')
+
 
 ## Find the flights that don't have a flight, we are going to fake a seperate process for them
 na_flight_df = df[df['flight'].isna()]
-print(na_flight_df)
 
 ## Find the flights that start with UA, since we are going to use them to pretend we have a process running in the background
 ua_flights_df = df[df['flight'].notna()]
-print(ua_flights_df[ua_flights_df['flight'].str.startswith('UA')])
 
-print(df[df['hex'] == 'a1e67b'].to_dict(orient='records'))
