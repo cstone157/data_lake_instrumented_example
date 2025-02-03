@@ -12,5 +12,7 @@
         }
     },
     
-    "initial_task": "Ingested"
+    "initial_task": "Ingested",
+    "system_name": "UA_Monitor",
+    "interval_between_loops": 1000
 }
