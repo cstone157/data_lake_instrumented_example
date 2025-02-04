@@ -3,12 +3,20 @@
         "Ingested": {
             "users": [],
             "roles": ["Automated"],
-            "next_status": [{"type": "Pending", "probability": 0.50, "min": 3000, "max": 30000}]
+            "next_status": [
+                {"type": "Pending", "probability": 0.90, "min": 3000, "max": 30000}, 
+                {"type": "Cancelled", "probability": 1.00, "min": 1000, "max": 1500}
+            ]
         },
         "Pending": {
             "users": [],
             "roles": ["Automated"],
             "next_status": [{"type": "Pending", "probability": 0.50}]
+        },
+        "Cancelled": {
+            "users": [],
+            "roles": ["Automated"],
+            "next_status": []
         }
     },
     

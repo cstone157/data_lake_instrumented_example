@@ -1,7 +1,7 @@
 import json
 import os
 import requests
-
+import random
 
 import numpy as np
 import pandas as pd
@@ -92,8 +92,17 @@ ua_flights_df = df[df['flight'].notna()].copy()
 ## Add a initial status to the dataframe
 ua_flights_df["status"] = config["initial_task"]
 ua_flights_df["system_name"] = config["system_name"]
+ua_flights_df["user"] = ""
+ua_flights_df["role"] = ""
+
 ua_flights_df["timestamp"] = pd.to_datetime('now')
-ua_flights_df["initial_time"] = 0
+ua_flights_df["timestamp_toupdate"] = pd.to_datetime('now')
+
+## Go into our messages and use the config.json and calculate the next time for a "System/process update"
+for index, row in ua_flights_df.iterrows():
+    task = config["tasks"][row["status"]]
+    next_tasks = task["next_status"]
+
 
 ## Build up our log of messages until we are called then purge them
 messages_pending = []
@@ -113,4 +122,5 @@ for index, row in ua_flights_df.iterrows():
     
     messages_pending.append(msg)
 
-print(messages_pending)
+#print(messages_pending)
+
