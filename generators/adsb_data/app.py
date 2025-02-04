@@ -83,10 +83,10 @@ config = get_config()
 df["last_update"] = pd.to_datetime('now')
 
 ## Find the flights that don't have a flight, we are going to fake a seperate process for them
-na_flight_df = df[df['flight'].isna()]
+na_flight_df = df[df['flight'].isna()].copy()
 
 ## Find the flights that start with UA, since we are going to use them to pretend we have a process running in the background
-ua_flights_df = df[df['flight'].notna()]
+ua_flights_df = df[df['flight'].notna()].copy()
 
 
 ## Add a initial status to the dataframe
