@@ -6,78 +6,24 @@ import random
 import numpy as np
 import pandas as pd
 
-def get_config():
-    '''
-    Return the config of our application
-    '''
-    with open('config.json', 'r') as file:
-        return json.load(file)
+from tools import FakeAdsbProcess
 
-def read_adsb_api():
-    '''
-    Call the adsb api and return only the aircraft
-    '''
-    headers = {
-        'accept' : 'application/json'
-    }
-    response = requests.get('https://api.adsb.lol/v2/lat/34.05/lon/-118.25/dist/200', headers = headers).json()
-    aircrafts = response["ac"]
-    return aircrafts
+process01 = FakeAdsbProcess('config.json')
 
-def save_aircraft_to_file(aircrafts):
-    '''
-    Save the aircraft data to a json file
-    '''
-    with open('data.json', 'w', encoding='utf-8') as f:
-        json.dump(aircrafts, f, ensure_ascii=False, indent=4)
-
-def open_aircraft_from_file():
-    '''
-    Open a json file and retrieve aircraft
-    '''
-    with open('data.json', 'r') as file:
-        aircrafts = json.load(file)
-    return aircrafts
-
-def convert_adsb_json_to_dataframe(aircrafts):
-    counts = {}
-    values = {}
-    i = 0
-
-    for aircraft in aircrafts:
-        for key in aircraft.keys():
-            ## Check if we have a new key
-            if key not in counts.keys():
-                counts[key] = i + 1
-                values[key] = [None] * i
-                values[key].append(aircraft[key])
-            else:
-                counts[key] += 1
-                values[key].append(aircraft[key])
-        i += 1
-
-        ## Check to ensure that all of the keys have had a value added to them
-        for key in counts.keys():
-            if counts[key] < i:
-                counts[key] += 1
-                values[key].append(None)
-
-    df = pd.DataFrame(values)
-    return df
-
+'''
 if os.path.exists('data.json'):
     ## Get my aircrafts from a file (temporary)
-    aircrafts = open_aircraft_from_file()
+    aircrafts = tools.open_aircraft_from_file()
 else:
     ## Pull the aircrafts from adsb and save to file
-    aircrafts = read_adsb_api()
-    save_aircraft_to_file(aircrafts)
+    aircrafts = tools.read_adsb_api()
+    tools.save_aircraft_to_file(aircrafts)
 
 ## Convert the aircrafts into a dataframe
-df = convert_adsb_json_to_dataframe(aircrafts)
+df = tools.convert_adsb_json_to_dataframe(aircrafts)
 
 ## Get our configuration
-config = get_config()
+config = tools.get_config()
 
 ## Update our dataframe and include what the current status of our datapoints are
 df["last_update"] = pd.to_datetime('now')
@@ -102,7 +48,7 @@ ua_flights_df["timestamp_toupdate"] = pd.to_datetime('now')
 for index, row in ua_flights_df.iterrows():
     task = config["tasks"][row["status"]]
     next_tasks = task["next_status"]
-
+    task_probability = random.random()
 
 ## Build up our log of messages until we are called then purge them
 messages_pending = []
@@ -123,4 +69,4 @@ for index, row in ua_flights_df.iterrows():
     messages_pending.append(msg)
 
 #print(messages_pending)
-
+'''
