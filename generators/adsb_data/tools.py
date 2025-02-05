@@ -18,7 +18,7 @@ class FakeAdsbProcess:
             self.config_json = config_json
         
         ## If our config has pending messages, then go ahead and append them to the beginning
-        self.pending_messages = ([] if self.config_json.pending_messages is None else self.config_json.pending_messages)
+        self.pending_messages = (self.config_json["pending_messages"] if "pending_messages" in self.config_json.keys() else [])
         pass
     
 
