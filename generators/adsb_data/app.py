@@ -10,6 +10,16 @@ from tools import FakeAdsbProcess
 
 process01 = FakeAdsbProcess('config.json')
 
+## Retrieve the api data from api
+## Convert to a dataframe
+## Filter down to only the ones we want to see
+## Generate the initial messages from the api
+## Loop till done
+    ## Wait the specified amount of time
+    ## Generate the next batch of messages, based upon probablility and config
+    ## If we have waited long enough call the api again and then filter down to only the columns we care about
+## If the messages are asked for go ahead and pass them over a tcp connection to who ever called for them
+
 '''
 if os.path.exists('data.json'):
     ## Get my aircrafts from a file (temporary)
@@ -21,9 +31,6 @@ else:
 
 ## Convert the aircrafts into a dataframe
 df = tools.convert_adsb_json_to_dataframe(aircrafts)
-
-## Get our configuration
-config = tools.get_config()
 
 ## Update our dataframe and include what the current status of our datapoints are
 df["last_update"] = pd.to_datetime('now')
@@ -70,3 +77,8 @@ for index, row in ua_flights_df.iterrows():
 
 #print(messages_pending)
 '''
+
+adsb = process01.open_objects_from_file()
+adsb = process01.convert_json_to_dataframe(adsb)
+
+print(adsb.head())
