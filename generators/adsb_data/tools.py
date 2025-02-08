@@ -18,8 +18,10 @@ class FakeAdsbProcess:
             self.config_json = config_json
         
         ## If our config has pending messages, then go ahead and append them to the beginning
-        self.pending_messages = (self.config_json["pending_messages"] if "pending_messages" in self.config_json.keys() else [])
+        #self.pending_messages = (self.config_json["pending_messages"] if "pending_messages" in self.config_json.keys() else [])
+        #self.objs = None
         self.objs = None
+        self.msgs = []
         pass
     
 
@@ -50,11 +52,11 @@ class FakeAdsbProcess:
             self.objs = json.load(file)
         return self.objs
 
-    def convert_json_to_dataframe(self, objects):
+    def convert_json_to_dataframe(self, json):
         '''
         Convert a array of dictionary objects (or json) into a data frame, we don't care about what keys we have
         '''
-        counts = {}
+        '''counts = {}
         values = {}
         i = 0
 
@@ -77,6 +79,9 @@ class FakeAdsbProcess:
                     values[key].append(None)
 
         df = pd.DataFrame(values)
+        return df
+        '''
+        df = pd.read_json(json, orient='records')
         return df
 
 
