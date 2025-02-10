@@ -3,14 +3,44 @@
         "Ingested": {
             "users": [],
             "roles": ["Automated"],
-            "next_status": [{"type": "Pending", "probability": 0.50, "min": 3000, "max": 30000}]
+            "next_status": [
+                {"type": "Pending", "probability": 0.90, "min": 3000, "max": 30000}, 
+                {"type": "Cancelled", "probability": 1.00, "min": 1000, "max": 1500}
+            ]
         },
         "Pending": {
             "users": [],
             "roles": ["Automated"],
             "next_status": [{"type": "Pending", "probability": 0.50}]
+        },
+        "Cancelled": {
+            "users": [],
+            "roles": ["Automated"],
+            "next_status": []
         }
     },
     
-    "initial_task": "Ingested"
+    "initial_task": "Ingested",
+    "system_name": "UA_Monitor",
+    "interval_between_loops": 1000,
+
+    "api_feed": "https://api.adsb.lol/v2/lat/34.05/lon/-118.25/dist/200",
+    "api_colums": {
+        "hex": "hexcode",
+        "type": "type", "flight": "flight", 
+        "alt_baro": "altitude_barometer", "alt_geom": "altitude_geom", 
+        "lat": "latitude", "lon": "longitude",
+        "emergency": "emergency", "category": "category"
+    },
+    "api_filter": {
+        "flight": {
+            "type": "startswith",
+            "value": "UA"
+        }
+    },
+
+    "api_response_col": "ac",
+
+    "current_objects": "data.json",
+    "pending_messages": "messages.json"
 }

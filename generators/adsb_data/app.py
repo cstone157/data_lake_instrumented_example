@@ -1,82 +1,54 @@
-import requests
 import json
+import os
+import requests
+import random
 
 import numpy as np
 import pandas as pd
 
-def get_config():
-    '''
-    Return the config of our application
-    '''
-    with open('config.json', 'r') as file:
-        return json.load(file)
+from tools import FakeAdsbProcess
 
-def read_adsb_api():
-    '''
-    Call the adsb api and return only the aircraft
-    '''
-    headers = {
-        'accept' : 'application/json'
-    }
-    response = requests.get('https://api.adsb.lol/v2/lat/34.05/lon/-118.25/dist/200', headers = headers).json()
-    aircrafts = response["ac"]
-    return aircrafts
-
-def save_aircraft_to_file(aircrafts):
-    '''
-    Save the aircraft data to a json file
-    '''
-    with open('data.json', 'w', encoding='utf-8') as f:
-        json.dump(aircrafts, f, ensure_ascii=False, indent=4)
-
-def open_aircraft_from_file():
-    '''
-    Open a json file and retrieve aircraft
-    '''
-    with open('data.json', 'r') as file:
-        aircrafts = json.load(file)
-    return aircrafts
-
-def convert_adsb_json_to_dataframe(aircrafts):
-    counts = {}
-    values = {}
-    i = 0
-
-    for aircraft in aircrafts:
-        for key in aircraft.keys():
-            ## Check if we have a new key
-            if key not in counts.keys():
-                counts[key] = i + 1
-                values[key] = [None] * i
-                values[key].append(aircraft[key])
-            else:
-                counts[key] += 1
-                values[key].append(aircraft[key])
-        i += 1
-
-        ## Check to ensure that all of the keys have had a value added to them
-        for key in counts.keys():
-            if counts[key] < i:
-                counts[key] += 1
-                values[key].append(None)
-
-    df = pd.DataFrame(values)
-    return df
+## Retrieve the config.json from the files
+config_filepath = 'config.json'
+with open(config_filepath, 'r') as file:
+    config_json = json.load(file)
 
 
-## Get my aircrafts from a file (temporary)
-aircrafts = open_aircraft_from_file()
-df = convert_adsb_json_to_dataframe(aircrafts)
+## Retrieve the api data from api
+# headers = {
+#     'accept' : 'application/json'
+# }
+# response = requests.get(config_json["api_feed"], headers = headers).json()
+# json_objs = response[config_json["api_response_col"]]
+#with open((config_json["current_objects"]), 'w', encoding='utf-8') as f:
+#    json.dump(json_objs, f, ensure_ascii=False, indent=4)
 
-## Get our configuration
-config = get_config()
-## Update our dataframe and include what the current status of our datapoints are
-df["last_update"] = pd.to_datetime('now')
+## (Substituting the data.json for the time being to save amount of API calls)
+#with open((config_json["current_objects"]), 'r') as file:
+#    json_objs = json.load(file)
+## Convert to a dataframe
+#df = pd.read_json(json_objs[0], orient='records')
+df = pd.read_json(config_json["current_objects"], orient='records')
+#print(df.columns)
+# print(df[df.columns[:10]].head())
+# print(df[df.columns[11:20]].head())
+# print(df[df.columns[21:30]].head())
+# print(df[df.columns[31:40]].head())
+# print(df[df.columns[41:]].head())
+
+## Filter down to only the colums we care about
+df = df[config_json["api_colums"].keys()]
+df = df.rename(columns=config_json["api_colums"])
 
 
-## Find the flights that don't have a flight, we are going to fake a seperate process for them
-na_flight_df = df[df['flight'].isna()]
+## Filter down to only the ones we want to see
 
-## Find the flights that start with UA, since we are going to use them to pretend we have a process running in the background
-ua_flights_df = df[df['flight'].notna()]
+
+
+## Generate the initial messages from the api
+## Loop till done
+    ## Wait the specified amount of time
+    ## Generate the next batch of messages, based upon probablility and config
+    ## If we have waited long enough call the api again and then filter down to only the columns we care about
+## If the messages are asked for go ahead and pass them over a tcp connection to who ever called for them
 
