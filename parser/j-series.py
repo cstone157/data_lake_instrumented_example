@@ -1,6 +1,32 @@
 import numpy as np
 import pandas as pd
 
+message_type = {
+    "J0" : "System Information Exchange and Network Management Word",
+    "J1" : "System Information Exchange and Network Management Word",
+    "J2" : "PPLI Word",
+    "J3" : "Surveillance Word",
+    #"J4" : "",
+    "J5" : "Anti-submarine Warfare Word",
+    "J6" : "Amplification Word",
+    "J7" : "Information Management Word",
+    "J8" : "Information Management Word",
+    "J9" : "Weapons Coordination and Management Word",
+    "J10": "Weapons Coordination and Management Word",
+    "J11": "Network Enabled Weapon Word",
+    "J12": "Control Word",
+    "J13": "Platform and System Status Word",
+    "J14": "Control Word",
+    "J15": "Threat Warning Word",
+    "J16": "Mission Support",
+    "J17": "Miscellaneous Word",
+    "J27": "National Use Word",
+    "J28": "National Use Word",
+    "J29": "National Use Word",
+    "J30": "National Use Word",
+    "J31": "Miscellaneous Word",
+}
+
 file_path = ""
 
 df = {
