@@ -24,13 +24,18 @@ class DergParser:
         ## So that this doesn't need to get changed when I move this to production, 
         ##     go ahead and make these parameters
         self.parts = {
-            "time"   : {"start": 0,  "end": 12, "type": "time"},
-            "meat1"  : {"start": 12, "end": 22, "type": "str"},
-            "jseries": {"start": 22, "end": 31, "type": "jseries"},
-            "meta2"  : {"start": 31, "end": 38, "type": "str"},
-            "meta3"  : {"start": 38, "end": 10, "type": "str"},
-            "msg"    : {"start": 47,            "type": "str"},
+            "time"   : {"start": 0,  "end": 8, "type": "time"},
+            "meat1"  : {"start": 10, "end": 14, "type": "str"},
+            "meta2"  : {"start": 15, "end": 21, "type": "str"},
+            "jseries": {"start": 20, "end": 30, "type": "jseries"},
+            "meta3"  : {"start": 30, "end": 37, "type": "str"},
+            "meta4"  : {"start": 37, "end": 46, "type": "str"},
+            "msg"    : {"start": 46,            "type": "str"},
         }
+        ## We split the jseries into parts and these are the columns that we will use
+        self.jseries_type1 = "jseries_1"
+        self.jseries_type2 = "jseries_2"
+        self.jseries_type3 = "jseries_3"
 
         ## Allow for input of variable number of arguments and accept them if passed
         # for key, value in kwargs.items():
@@ -54,16 +59,17 @@ class DergParser:
         for key in self.parts.keys():
             df[key] = []
         ## Add the two columns for the jseries parts
-        df["jseries_1"] = []
-        df["jseries_2"] = []
+        df[self.jseries_type1] = []
+        df[self.jseries_type2] = []
+        df[self.jseries_type3] = []
 
         ## Open our file and start looping through the lines
         with open(file_path, 'r') as file:
-            line_number = 0
+            line_number = 1
             ## Skip of leading lines
             for line in file:
                 ## TO-DO: comment me out, Print our current line, for trouble shooting
-                print(line)
+                print(f"skipping header lines: {line}")
 
                 line_number += 1
                 if line_number > self.first_lines_skip:
@@ -77,12 +83,13 @@ class DergParser:
                 ## TO-DO: comment me out, Print our current line, for trouble shooting
                 print(line)
 
+
                 ## Check if this is our time (hour) line, if so update our hour
                 if line.startswith(self.time_line_prefix):
-                    hour = line[3:5]
-
+                    hour = line[2:4]
+                    #print(f"\n ============== \n Udating hour {hour} \n ============== \n") ## DELETE ME
                 ## Parse the lines that start with a blank, thus append it to the previous line
-                if line.startswith(" "):
+                elif line.startswith(" "):
                     print("-> Continuation line")
                 ## Parse the line if it starts with a timestamp 
                 else:
@@ -114,9 +121,11 @@ class DergParser:
             
             ## If there is no end
             if "end" in self.parts[key]:
-                value = line[self.parts[key]["start"]:self.parts[key]["end"]]
+                value = line[self.parts[key]["start"]:self.parts[key]["end"]].strip()
             else:
-                value = line[self.parts[key]["start"]:]
+                value = line[self.parts[key]["start"]:].strip()
+
+            print(f"\t{key} --> {value}")
 
             print(f"{key}({type})\t\t {value}")
             if type == "str":
@@ -126,10 +135,11 @@ class DergParser:
                 ## if the type is jseries, go ahead and pass it to our jseries
                 ##     type parser and deal with that
                 dict[key].append(value)
+                dict = self.parseJSeriesType(value, dict)
             elif type == "time":
                 ## if the type is time, append hour to the beginning of the 
                 ##     time data
-                dict[key].append(f"{hour}:{value}")
+                dict[key].append(f"{hour}:{value[3:]}")
         return dict
         ## =========================== End parseFullLine ==========================
 
@@ -137,6 +147,24 @@ class DergParser:
         """
         Given a JSeries message type, parse it into two halves
         """
+        i = jtype.find(".")
+        ## if there is no '.', then we are only 
+        if i == -1:
+            dict[self.jseries_type1].append(jtype)
+            dict[self.jseries_type2].append(None)
+            dict[self.jseries_type3].append(None)
+        else:
+            dict[self.jseries_type1].append(jtype[:i])
+            tmp = jtype[i+1:]
+            if tmp[-1] >= "0" and tmp[-1] <= "9":
+                dict[self.jseries_type2].append(tmp)
+                dict[self.jseries_type3].append(None)
+            else:
+                dict[self.jseries_type2].append(tmp[:-1])
+                dict[self.jseries_type3].append(tmp[-1])
+
+
+
         return dict
         ## ========================== End parseJSeriesType ========================
 
