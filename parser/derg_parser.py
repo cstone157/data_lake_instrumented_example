@@ -24,12 +24,12 @@ class DergParser:
         ## So that this doesn't need to get changed when I move this to production, 
         ##     go ahead and make these parameters
         self.parts = {
-            "time"   : {"start": 0,  "end": 12, "type": "str"},
+            "time"   : {"start": 0,  "end": 12, "type": "time"},
             "meat1"  : {"start": 12, "end": 22, "type": "str"},
             "jseries": {"start": 22, "end": 31, "type": "jseries"},
             "meta2"  : {"start": 31, "end": 38, "type": "str"},
             "meta3"  : {"start": 38, "end": 10, "type": "str"},
-            "msg"    : {"start": 47,},
+            "msg"    : {"start": 47,            "type": "str"},
         }
 
         ## Allow for input of variable number of arguments and accept them if passed
@@ -87,7 +87,7 @@ class DergParser:
                 ## Parse the line if it starts with a timestamp 
                 else:
                     print("Message line")
-                    df = self.parseFullLine(line, df)
+                    df = self.parseFullLine(line, df, hour=hour)
 
                 ## Increment our line number
                 line_number += 1
@@ -104,14 +104,41 @@ class DergParser:
         return self.dataframe
         ## =============================== End parse ==============================
 
-    def parseFullLine(self, line, dict):
+    def parseFullLine(self, line, dict, hour="00"):
         """
         Parse a full line
         """
         for key in self.parts.keys():
+            type = self.parts[key]["type"]
+            value = ""
+            
+            ## If there is no end
+            if "end" in self.parts[key]:
+                value = line[self.parts[key]["start"]:self.parts[key]["end"]]
+            else:
+                value = line[self.parts[key]["start"]:]
 
-
+            print(f"{key}({type})\t\t {value}")
+            if type == "str":
+                ## If the type is str, go ahead and store it as a string
+                dict[key].append(value)
+            elif type == "jseries":
+                ## if the type is jseries, go ahead and pass it to our jseries
+                ##     type parser and deal with that
+                dict[key].append(value)
+            elif type == "time":
+                ## if the type is time, append hour to the beginning of the 
+                ##     time data
+                dict[key].append(f"{hour}:{value}")
         return dict
+        ## =========================== End parseFullLine ==========================
+
+    def parseJSeriesType(self, jtype, dict):
+        """
+        Given a JSeries message type, parse it into two halves
+        """
+        return dict
+        ## ========================== End parseJSeriesType ========================
 
 derg_parser = DergParser(max_lines=5)
 derg_parser.parse("fake_derg.derg")
